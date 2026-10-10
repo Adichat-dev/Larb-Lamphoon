@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ระบบจัดการขยะตกค้างในชุมชน – Prototype</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--card:#fff;--bd:#ddd;--mut:#666;--hd:#500000;--ac:#c8102e;--ok:#1a7f37;--side:#f6f1f1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121212;--fg:#eee;--card:#1e1e1e;--bd:#383838;--mut:#aaa;--side:#1b1616;--ok:#4cc26a}}
+:root[data-theme="dark"]{--bg:#121212;--fg:#eee;--card:#1e1e1e;--bd:#383838;--mut:#aaa;--side:#1b1616;--ok:#4cc26a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{background:var(--hd);color:#fff;padding:14px 20px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;font-size:13px;opacity:.85}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;max-width:1200px;margin:0 auto;padding:16px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.tabs{display:flex;gap:6px;border-bottom:3px solid var(--bd);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{background:none;border:0;color:var(--fg);padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs button.on{border-color:var(--ac);color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:12px}
+label{display:block;font-weight:600;margin:10px 0 4px;font-size:14px}
+input,textarea,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:6px;font:inherit;background:var(--bg);color:var(--fg)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:20px;padding:9px 18px;font:inherit;font-weight:600;cursor:pointer;margin-top:12px}
+.btn.s{background:none;color:var(--ac);border:1px solid var(--ac);padding:5px 12px;margin:0 4px 0 0;font-size:13px}
+.btn.g{background:none;color:var(--fg);border:1px solid var(--bd);padding:6px 12px;font-size:13px;margin:4px 4px 0 0}
+.row{display:flex;gap:8px}.row>*{flex:1}.row .btn{flex:0 0 auto;margin:0}
+.pv{max-width:160px;border-radius:6px;margin-top:8px;display:none}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;color:#fff}
+.st0{background:#b7791f}.st1{background:#2b6cb0}.st2{background:var(--ok)}
+.u0{background:#718096}.u1{background:#dd6b20}.u2{background:var(--ac)}
+.tk{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}.mut{color:var(--mut);font-size:13px}
+.tk .act{min-width:150px}
+.tk input[type=file]{font-size:12px;padding:4px;margin-top:6px}
+.imgs{display:flex;gap:10px;margin:8px 0;flex-wrap:wrap}.imgs figure{margin:0}.imgs img{width:110px;height:80px;object-fit:cover;border-radius:6px;display:block}.imgs figcaption{font-size:12px;color:var(--mut);text-align:center}
+.tl{list-style:none;margin:8px 0 0;padding:0 0 0 14px;border-left:2px solid var(--bd)}.tl li{font-size:13px;margin:0 0 6px;padding-left:8px}
+aside{background:var(--side);border:1px solid var(--bd);border-radius:8px;padding:14px;align-self:start;position:sticky;top:8px}
+aside h2{font-size:16px;margin:0 0 8px}aside ul{list-style:none;padding:0;margin:0 0 12px}
+aside li{padding:6px 8px;margin-bottom:4px;border-radius:6px;font-size:13px;border:1px solid var(--bd);background:var(--card)}
+aside li.hit{border-color:var(--ok)}aside li.hit::before{content:"✓ ";color:var(--ok);font-weight:700}
+.perf{font-size:13px}.perf b{font-size:20px}.bar{height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ok);width:0}
+.note{font-size:12px;color:var(--mut);margin-top:10px}
+#toasts{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:6px;z-index:9}
+.toast{background:#222;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;max-width:280px}
+.kpi{display:flex;gap:8px;flex-wrap:wrap}.kpi div{flex:1;min-width:90px;text-align:center;padding:10px;border:1px solid var(--bd);border-radius:8px}.kpi b{font-size:22px;display:block}
+</style>
+</head>
+<body>
+<header><h1>ระบบจัดการขยะตกค้างในชุมชน</h1><p>ต้นแบบสำหรับสาธิต · ข้อมูลทั้งหมดเป็นข้อมูลจำลอง</p></header>
+<div class="wrap">
+<main>
+<div class="tabs" id="tabs">
+<button class="on" data-t="c">ประชาชน</button><button data-t="o">เจ้าหน้าที่เก็บขยะ</button><button data-t="s">ผู้ดูแลระบบเทศบาล</button></div>
+
+<section id="c">
+<div class="card"><b>แจ้งจุดขยะตกค้าง</b>
+<div class="row">
+<div><label for="type">ประเภทขยะ</label><select id="type"></select></div>
+<div><label for="urg">ความเร่งด่วน</label><select id="urg"></select></div>
+</div>
+<label for="desc">รายละเอียด</label><textarea id="desc" rows="3" placeholder="เช่น ขยะล้นถังหน้าตลาด ไม่ได้เก็บ 3 วัน"></textarea>
+<label for="loc">ตำแหน่ง / พื้นที่</label>
+<div class="row"><input id="loc" placeholder="เช่น ซอยสุขใจ 5 ชุมชนท่าสุด"><button class="btn s" id="gps" type="button">📍 ตำแหน่งปัจจุบัน</button></div>
+<label for="img">รูปภาพ</label><input type="file" id="img" accept="image/*"><img id="pv" class="pv" alt="">
+<button class="btn" id="send">ส่งเรื่องร้องเรียน</button></div>
+<div class="card"><b>ติดตามเรื่อง</b>
+<div class="row" style="margin-top:8px"><input id="q" placeholder="กรอกเลขติดตาม เช่น WS-0001"><button class="btn" id="find">ค้นหา</button></div>
+<div id="qr" class="mut" style="margin-top:8px"></div></div>
+</section>
+
+<section id="o" hidden><div class="card"><b>งานที่รอรับ / กำลังดำเนินการ</b> <span class="mut">(เรียงตามความเร่งด่วน)</span><div id="olist" style="margin-top:10px"><div class="mut">ยังไม่มีงานค้าง</div></div></div></section>
+
+<section id="s" hidden>
+<div class="kpi" id="kpi"></div>
+<div class="card" style="margin-top:12px"><b>พื้นที่ที่มีปัญหาซ้ำ</b><div id="rep" class="mut" style="margin-top:6px"></div>
+<button class="btn" id="exp">ออกรายงาน (CSV)</button></div>
+</section>
+</main>
+
+<aside>
+<h2>เช็คลิสต์ความต้องการ</h2>
+<ul id="fr">
+<li data-f="1">แจ้งปัญหาพร้อมรูป/ตำแหน่ง</li>
+<li data-f="2">ได้รับเลขติดตามเรื่อง</li>
+<li data-f="3">เจ้าหน้าที่อัปเดตสถานะ</li>
+<li data-f="4">แจ้งเตือนเมื่อสถานะเปลี่ยน</li>
+<li data-f="5">ออกรายงานสรุป CSV</li>
+</ul>
+<div class="perf">
+<h2>เวลาตอบสนอง</h2>
+<b id="pt">–</b> <span id="pr"></span>
+<div class="bar"><i id="pb"></i></div>
+<div class="mut" id="ph">ยังไม่ได้ทดสอบ</div>
+</div>
+<h2 style="margin-top:14px">เครื่องมือสาธิต</h2>
+<button class="btn g" id="demo" type="button">โหลดข้อมูลตัวอย่าง</button>
+<button class="btn g" id="clear" type="button">ล้างข้อมูลทั้งหมด</button>
+<div class="note">การแจ้งเตือนเป็นการจำลองแบบ toast ในหน้านี้ ไม่ได้ส่งถึงประชาชนจริง ข้อมูลเก็บในเบราว์เซอร์ของคุณเท่านั้น</div>
+</aside>
+</div>
+<div id="toasts"></div>
+<script>
+const $=s=>document.querySelector(s);
+const T=["รอรับเรื่อง","กำลังดำเนินการ","เก็บเรียบร้อย"];
+const TYPES=["ขยะทั่วไป","ขยะอันตราย","ซากสัตว์","ขยะชิ้นใหญ่/ก่อสร้าง"];
+const URG=["ปกติ","ด่วน","ด่วนมาก"];
+let tickets=[],n=0,photo="",hist=[],afterP={};
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(ts){return new Date(ts).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'})}
+function hit(f){const e=$('#fr [data-f="'+f+'"]');e&&e.classList.add('hit')}
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;$('#toasts').append(d);setTimeout(()=>d.remove(),4000)}
+function timed(fn){const t0=performance.now();fn();const ms=performance.now()-t0;hist.push(ms);
+ $('#pt').textContent=(ms/1000).toFixed(3)+' วินาที';const ok=ms<=10000;
+ $('#pr').textContent=ok?'✓ ผ่าน (≤ 10 วิ)':'✗ ไม่ผ่าน';$('#pb').style.width=Math.min(100,ms/100)+'%';$('#pb').style.background=ok?'var(--ok)':'var(--ac)';
+ $('#ph').textContent='ทดสอบแล้ว '+hist.length+' ครั้ง · ช้าสุด '+(Math.max(...hist)/1000).toFixed(3)+' วิ'}
+
+/* storage (per-browser, optional) */
+function save(){try{localStorage.setItem('ws_v2',JSON.stringify({tickets,n}))}catch(e){toast('บันทึกลงเบราว์เซอร์ไม่ได้ ข้อมูลอาจหายเมื่อรีเฟรช')}}
+function load(){try{const o=JSON.parse(localStorage.getItem('ws_v2')||'null');if(o&&Array.isArray(o.tickets)){tickets=o.tickets;n=o.n||tickets.length}}catch(e){}}
+
+/* shrink images so storage doesn't fill up */
+function shrink(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.7))};im.onerror=()=>toast('อ่านไฟล์รูปไม่ได้');im.src=r.result};r.readAsDataURL(file)}
+
+$('#type').innerHTML=TYPES.map((t,i)=>`<option value="${i}">${t}</option>`).join('');
+$('#urg').innerHTML=URG.map((t,i)=>`<option value="${i}">${t}</option>`).join('');
+
+$('#tabs').onclick=e=>{const t=e.target.dataset.t;if(!t)return;
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b===e.target));
+ ['c','o','s'].forEach(x=>$('#'+x).hidden=x!==t);timed(()=>{render()})};
+
+$('#img').onchange=e=>{const f=e.target.files[0];if(!f)return;shrink(f,d=>{photo=d;$('#pv').src=d;$('#pv').style.display='block'})};
+
+$('#gps').onclick=()=>{if(!navigator.geolocation){toast('อุปกรณ์ไม่รองรับตำแหน่ง');return}
+ navigator.geolocation.getCurrentPosition(p=>{$('#loc').value=p.coords.latitude.toFixed(5)+', '+p.coords.longitude.toFixed(5)},()=>toast('ไม่สามารถอ่านตำแหน่งได้ กรุณาพิมพ์เอง'),{timeout:8000})};
+
+$('#send').onclick=()=>{const d=$('#desc').value.trim(),l=$('#loc').value.trim();
+ if(!d||!l){toast('กรุณากรอกรายละเอียดและตำแหน่ง');return}
+ timed(()=>{const id='WS-'+String(++n).padStart(4,'0'),now=Date.now();
+  tickets.push({id,d,l,photo,after:'',type:+$('#type').value,urg:+$('#urg').value,s:0,t:now,h:[{s:0,at:now}]});
+  hit(1);hit(2);toast('รับเรื่องแล้ว เลขติดตาม '+id);$('#qr').textContent='เลขติดตามล่าสุดของคุณ: '+id;$('#q').value=id;
+  $('#desc').value='';$('#loc').value='';$('#img').value='';photo='';$('#pv').style.display='none';save();render()})};
+
+$('#find').onclick=()=>timed(()=>{const t=tickets.find(x=>x.id===$('#q').value.trim().toUpperCase());
+ if(!t){$('#qr').textContent='ไม่พบเลขติดตามนี้';return}
+ const imgs=(t.photo||t.after)?`<div class="imgs">${t.photo?`<figure><img src="${t.photo}" alt="ก่อนเก็บ"><figcaption>ก่อนเก็บ</figcaption></figure>`:''}${t.after?`<figure><img src="${t.after}" alt="หลังเก็บ"><figcaption>หลังเก็บ</figcaption></figure>`:''}</div>`:'';
+ $('#qr').innerHTML=`<span class="tag st${t.s}">${T[t.s]}</span> <span class="tag u${t.urg}">${URG[t.urg]}</span> <b>${t.id}</b> · ${TYPES[t.type]}<br>${esc(t.l)}<br>${esc(t.d)}${imgs}<ul class="tl">${t.h.map(x=>`<li><b>${T[x.s]}</b> <span class="mut">${fmt(x.at)}</span></li>`).join('')}</ul>`});
+
+function setS(id,s){timed(()=>{const t=tickets.find(x=>x.id===id);if(!t)return;t.s=s;t.h.push({s,at:Date.now()});
+ if(s==2&&afterP[id]){t.after=afterP[id]}delete afterP[id];
+ hit(3);hit(4);toast('🔔 '+id+' เปลี่ยนสถานะเป็น "'+T[s]+'"');save();render()})}
+window.setS=setS;
+window.pickAfter=(id,inp)=>{const f=inp.files[0];if(!f)return;shrink(f,d=>{afterP[id]=d;const p=document.getElementById('ap-'+id);if(p){p.src=d;p.style.display='block'}})};
+
+function render(){
+ const act=tickets.filter(t=>t.s<2).sort((a,b)=>b.urg-a.urg||a.t-b.t);
+ $('#olist').innerHTML=act.length?act.map(t=>`<div class="card tk"><div>${t.photo?`<img src="${t.photo}" alt="" style="width:64px;border-radius:6px;float:left;margin-right:10px">`:''}<b>${t.id}</b> <span class="tag st${t.s}">${T[t.s]}</span> <span class="tag u${t.urg}">${URG[t.urg]}</span><br>${esc(t.l)}<div class="mut">${TYPES[t.type]} · ${esc(t.d)} · ${fmt(t.t)}</div></div><div class="act">${t.s==0?`<button class="btn s" onclick="setS('${t.id}',1)">รับงาน</button>`:`<button class="btn s" onclick="setS('${t.id}',2)">เก็บเสร็จ</button><div class="mut">แนบรูปหลังเก็บ (ไม่บังคับ)</div><input type="file" accept="image/*" capture="environment" onchange="pickAfter('${t.id}',this)"><img id="ap-${t.id}" class="pv" style="${afterP[t.id]?'display:block':''}" src="${afterP[t.id]||''}" alt="">`}</div></div>`).join(''):'<div class="mut">ยังไม่มีงานค้าง</div>';
+ const c=[0,1,2].map(i=>tickets.filter(t=>t.s==i).length);
+ $('#kpi').innerHTML=[['ทั้งหมด',tickets.length],['รอรับเรื่อง',c[0]],['กำลังดำเนินการ',c[1]],['เสร็จสิ้น',c[2]]].map(([a,b])=>`<div><b>${b}</b>${a}</div>`).join('');
+ const m={};tickets.forEach(t=>m[t.l]=(m[t.l]||0)+1);
+ const r=Object.entries(m).filter(([,v])=>v>1);
+ $('#rep').innerHTML=r.length?r.map(([k,v])=>`⚠️ ${esc(k)} — แจ้งซ้ำ ${v} ครั้ง`).join('<br>'):'ยังไม่พบพื้นที่ที่แจ้งซ้ำ (ลองแจ้งตำแหน่งเดิมสองครั้ง หรือกด "โหลดข้อมูลตัวอย่าง")'}
+
+$('#exp').onclick=()=>timed(()=>{hit(5);
+ const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ const csv='\ufeffเลขติดตาม,พื้นที่,ประเภท,ความเร่งด่วน,รายละเอียด,สถานะ,เวลาแจ้ง\n'+tickets.map(t=>[t.id,t.l,TYPES[t.type],URG[t.urg],t.d,T[t.s],fmt(t.t)].map(q).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='report.csv';a.click();toast('สร้างรายงานแล้ว')});
+
+$('#demo').onclick=()=>{const H=36e5,now=Date.now();
+ const S=[
+  ['ขยะล้นถังหน้าตลาดสดท่าสุด ไม่ได้เก็บ 3 วัน','ตลาดสดท่าสุด',0,1,0,70],
+  ['ขยะกองใหญ่ข้างวัด มีกลิ่นเหม็น','ซอยสุขใจ 5 ชุมชนท่าสุด',0,2,1,50],
+  ['ขยะล้นถังซ้ำอีกครั้ง','ซอยสุขใจ 5 ชุมชนท่าสุด',0,1,0,20],
+  ['พบหลอดไฟและแบตเตอรี่ทิ้งริมคลอง','คลองหน้าโรงเรียนบ้านท่าสุด',1,2,2,48],
+  ['ซากสุนัขริมถนน','ถนนสายหลักหน้าตลาดสดท่าสุด',2,2,1,5],
+  ['เศษไม้และปูนทิ้งหน้าบ้านร้าง','ซอยสุขใจ 5 ชุมชนท่าสุด',3,0,2,96]];
+ S.forEach(([d,l,type,urg,st,age])=>{const id='WS-'+String(++n).padStart(4,'0');const t0=now-age*H;const h=[{s:0,at:t0}];
+  if(st>=1)h.push({s:1,at:t0+3*H});if(st>=2)h.push({s:2,at:t0+9*H});
+  tickets.push({id,d,l,photo:'',after:'',type,urg,s:st,t:t0,h})});
+ hit(1);hit(2);save();render();toast('เพิ่มข้อมูลตัวอย่าง '+S.length+' รายการ')};
+
+$('#clear').onclick=()=>{tickets=[];n=0;afterP={};save();render();$('#qr').textContent='';toast('ล้างข้อมูลแล้ว')};
+
+load();render();
+</script>
+</body>
+</html>
