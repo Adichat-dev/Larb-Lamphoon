@@ -1,0 +1,310 @@
+```html
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจัดการขยะตกค้างในชุมชน</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    header {
+      background: #500000;
+      color: white;
+      padding: 20px 15px;
+      text-align: center;
+    }
+
+    header h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    nav {
+      display: flex;
+      gap: 6px;
+      padding: 10px;
+      background: white;
+    }
+
+    nav button {
+      flex: 1;
+      padding: 12px 5px;
+      border: none;
+      border-radius: 8px;
+      background: #eee;
+      font-size: 13px;
+    }
+
+    nav button.active {
+      background: #c8102e;
+      color: white;
+    }
+
+    main {
+      padding: 12px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #00000010;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #c8102e;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      main {
+        max-width: 700px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>♻️ ระบบจัดการขยะตกค้างในชุมชน</h2>
+  <p>แจ้งปัญหาและติดตามการจัดเก็บขยะ</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('citizen', this)">
+    ประชาชน
+  </button>
+  <button onclick="showTab('staff', this)">
+    เจ้าหน้าที่
+  </button>
+  <button onclick="showTab('admin', this)">
+    เทศบาล
+  </button>
+</nav>
+
+<main>
+  <section id="citizen">
+    <div class="card">
+      <h3>📍 แจ้งจุดขยะตกค้าง</h3>
+
+      <label for="detail">รายละเอียดปัญหา</label>
+      <textarea id="detail" rows="3"
+        placeholder="ระบุปัญหาขยะที่พบ"></textarea>
+
+      <label for="location">ตำแหน่ง / พื้นที่</label>
+      <input id="location"
+        placeholder="ระบุสถานที่พบขยะ">
+
+      <label for="photo">รูปภาพประกอบ</label>
+      <input type="file" id="photo" accept="image/*"
+        capture="environment">
+
+      <button class="btn" onclick="submitReport()">
+        ส่งเรื่องร้องเรียน
+      </button>
+    </div>
+
+    <div class="card">
+      <h3>🔎 ติดตามเรื่องร้องเรียน</h3>
+      <label for="tracking">เลขติดตาม</label>
+      <input id="tracking" placeholder="เช่น WS-0001">
+
+      <button class="btn" onclick="trackReport()">
+        ค้นหาสถานะ
+      </button>
+
+      <p id="result"></p>
+    </div>
+  </section>
+
+  <section id="staff" class="hidden">
+    <div class="card">
+      <h3>🚛 งานสำหรับเจ้าหน้าที่</h3>
+      <div id="workList">ยังไม่มีงานค้าง</div>
+    </div>
+  </section>
+
+  <section id="admin" class="hidden">
+    <div class="card">
+      <h3>📊 สรุปข้อมูลเทศบาล</h3>
+      <p>จำนวนเรื่องทั้งหมด: <b id="total">0</b></p>
+      <p>รอรับเรื่อง: <b id="pending">0</b></p>
+      <p>กำลังดำเนินการ: <b id="progress">0</b></p>
+      <p>เสร็จสิ้น: <b id="completed">0</b></p>
+    </div>
+  </section>
+</main>
+
+<script>
+  let reports = [];
+  let nextId = 1;
+
+  function showTab(id, button) {
+    document.querySelectorAll('main section')
+      .forEach(section => section.classList.add('hidden'));
+
+    document.getElementById(id).classList.remove('hidden');
+
+    document.querySelectorAll('nav button')
+      .forEach(btn => btn.classList.remove('active'));
+
+    button.classList.add('active');
+    render();
+  }
+
+  function submitReport() {
+    const detail = document.getElementById('detail').value.trim();
+    const location = document.getElementById('location').value.trim();
+
+    if (!detail || !location) {
+      alert('กรุณากรอกรายละเอียดและตำแหน่ง');
+      return;
+    }
+
+    const id = 'WS-' + String(nextId++).padStart(4, '0');
+
+    reports.push({
+      id,
+      detail,
+      location,
+      status: 0,
+      date: new Date().toLocaleString('th-TH')
+    });
+
+    document.getElementById('tracking').value = id;
+    document.getElementById('result').textContent =
+      'รับเรื่องแล้ว เลขติดตาม: ' + id;
+
+    document.getElementById('detail').value = '';
+    document.getElementById('location').value = '';
+    document.getElementById('photo').value = '';
+
+    render();
+    alert('ส่งเรื่องร้องเรียนเรียบร้อย');
+  }
+
+  function trackReport() {
+    const id = document.getElementById('tracking')
+      .value.trim().toUpperCase();
+
+    const report = reports.find(item => item.id === id);
+    const result = document.getElementById('result');
+
+    if (!report) {
+      result.textContent = 'ไม่พบเลขติดตาม';
+      return;
+    }
+
+    const statuses = [
+      'รอรับเรื่อง',
+      'กำลังดำเนินการ',
+      'เก็บขยะเรียบร้อย'
+    ];
+
+    result.textContent =
+      report.id + ' | ' + statuses[report.status] +
+      ' | ' + report.location;
+  }
+
+  function updateStatus(id, status) {
+    const report = reports.find(item => item.id === id);
+
+    if (report) {
+      report.status = status;
+      render();
+    }
+  }
+
+  function render() {
+    const statuses = [
+      'รอรับเรื่อง',
+      'กำลังดำเนินการ',
+      'เสร็จสิ้น'
+    ];
+
+    const active = reports.filter(item => item.status < 2);
+
+    document.getElementById('workList').innerHTML =
+      active.length ? active.map(item => `
+        <div class="card">
+          <b>${escapeHTML(item.id)}</b>
+          <p>${escapeHTML(item.location)}</p>
+          <p>${escapeHTML(item.detail)}</p>
+          <p>สถานะ: ${statuses[item.status]}</p>
+          <button class="btn"
+            onclick="updateStatus('${item.id}',
+            ${item.status === 0 ? 1 : 2})">
+            ${item.status === 0 ? 'รับงาน' : 'เก็บเสร็จ'}
+          </button>
+        </div>
+      `).join('') : 'ยังไม่มีงานค้าง';
+
+    document.getElementById('total').textContent = reports.length;
+    document.getElementById('pending').textContent =
+      reports.filter(item => item.status === 0).length;
+    document.getElementById('progress').textContent =
+      reports.filter(item => item.status === 1).length;
+    document.getElementById('completed').textContent =
+      reports.filter(item => item.status === 2).length;
+  }
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[char]);
+  }
+
+  render();
+</script>
+
+</body>
+</html>
+```
