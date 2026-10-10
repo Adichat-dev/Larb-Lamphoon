@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waste Report History</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7f4;
+      color: #24352a;
+    }
+
+    header {
+      background: #247447;
+      color: white;
+      padding: 24px 7%;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    header p {
+      margin: 0;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 0 18px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card, .history {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #0000000b;
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      color: #657369;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .tools {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #ccd6ce;
+      border-radius: 8px;
+      font-size: 15px;
+      background: white;
+    }
+
+    input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 15px 12px;
+      border-bottom: 1px solid #e6ece7;
+    }
+
+    th {
+      background: #f6f9f6;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .received {
+      background: #e0edff;
+      color: #2458a6;
+    }
+
+    .progress {
+      background: #fff0cf;
+      color: #8a5a00;
+    }
+
+    .resolved {
+      background: #dff5e5;
+      color: #216b39;
+    }
+
+    button {
+      background: #247447;
+      color: white;
+      border: 0;
+      padding: 9px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #195a35;
+    }
+
+    #message {
+      color: #657369;
+      padding: 20px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #657369;
+    }
+
+    @media (max-width: 650px) {
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        padding: 22px 18px;
+      }
+
+      main {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Waste Report History</h1>
+    <p>Track your community waste reports.</p>
+  </header>
+
+  <main>
+    <section class="summary">
+      <div class="card">
+        <p>Total Reports</p>
+        <h2 id="total">0</h2>
+      </div>
+
+      <div class="card">
+        <p>In Progress</p>
+        <h2 id="ongoing">0</h2>
+      </div>
+
+      <div class="card">
+        <p>Resolved</p>
+        <h2 id="done">0</h2>
+      </div>
+    </section>
+
+    <section class="history">
+      <h2>My Reports</h2>
+      <p>Search and check the status of your reports.</p>
+
+      <div class="tools">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search report ID or location..."
+          aria-label="Search reports"
+        >
+
+        <select id="filter" aria-label="Filter by status">
+          <option value="All">All Statuses</option>
+          <option value="Received">Received</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Report ID</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="reportList"></tbody>
+        </table>
+      </div>
+
+      <p id="message" role="status"></p>
+    </section>
+  </main>
+
+  <footer>
+    Community Waste Reporting and Collection Tracking System
+  </footer>
+
+  <script>
+    // Sample data for demonstration only.
+    // Replace this array with real reports from the backend later.
+    const reports = [
+      {
+        id: "WR-1001",
+        location: "Community Market",
+        date: "2026-10-01",
+        status: "Received",
+        description: "The waste bin is full."
+      },
+      {
+        id: "WR-1002",
+        location: "Main Road",
+        date: "2026-10-03",
+        status: "In Progress",
+        description: "Waste has not been collected."
+      },
+      {
+        id: "WR-1003",
+        location: "Community Park",
+        date: "2026-10-04",
+        status: "Resolved",
+        description: "The waste has been collected."
+      }
+    ];
+
+    const reportList = document.getElementById("reportList");
+    const search = document.getElementById("search");
+    const filter = document.getElementById("filter");
+    const message = document.getElementById("message");
+
+    function renderReports() {
+      const keyword = search.value.trim().toLowerCase();
+      const selectedStatus = filter.value;
+
+      const filtered = reports.filter(report => {
+        const matchesSearch =
+          report.id.toLowerCase().includes(keyword) ||
+          report.location.toLowerCase().includes(keyword);
+
+        const matchesStatus =
+          selectedStatus === "All" ||
+          report.status === selectedStatus;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      document.getElementById("total").textContent =
+        reports.length;
+
+      document.getElementById("ongoing").textContent =
+        reports.filter(r => r.status === "In Progress").length;
+
+      document.getElementById("done").textContent =
+        reports.filter(r => r.status === "Resolved").length;
+
+      reportList.replaceChildren();
+
+      filtered.forEach(report => {
+        const row = document.createElement("tr");
+
+        const values = [
+          report.id,
+          report.location,
+          report.date
+        ];
+
+        values.forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.className = "status " + ({
+          "Received": "received",
+          "In Progress": "progress",
+          "Resolved": "resolved",
+          "Rejected": "received"
+        }[report.status] || "received");
+
+        badge.textContent = report.status;
+        statusCell.appendChild(badge);
+        row.appendChild(statusCell);
+
+        const detailCell = document.createElement("td");
+        const button = document.createElement("button");
+
+        button.textContent = "View";
+        button.addEventListener("click", () => {
+          alert(
+            "Report ID: " + report.id +
+            "\nLocation: " + report.location +
+            "\nStatus: " + report.status +
+            "\nDescription: " + report.description
+          );
+        });
+
+        detailCell.appendChild(button);
+        row.appendChild(detailCell);
+        reportList.appendChild(row);
+      });
+
+      message.textContent = filtered.length
+        ? "Showing " + filtered.length + " report(s)."
+        : "No reports found. Try another search.";
+    }
+
+    search.addEventListener("input", renderReports);
+    filter.addEventListener("change", renderReports);
+
+    renderReports();
+  </script>
+</body>
+</html>
