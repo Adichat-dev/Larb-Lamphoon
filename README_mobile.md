@@ -1,110 +1,110 @@
-# ระบบจัดการขยะตกค้างในชุมชน --- Mobile Version
+# Community Waste Management System --- Mobile Version
 
-ต้นแบบเว็บแอปสำหรับแจ้งจุดขยะตกค้าง ติดตามสถานะงาน
-และช่วยให้เจ้าหน้าที่กับผู้ดูแลระบบเทศบาลดูภาพรวมของเรื่องร้องเรียน
-โดยออกแบบให้ใช้งานได้ทั้งบนโทรศัพท์มือถือ แท็บเล็ต และคอมพิวเตอร์
+## 1. Project Overview
 
-> **สถานะ:** Prototype สำหรับสาธิตและทดลองใช้งาน
-> ข้อมูลเก็บไว้ในเบราว์เซอร์ของอุปกรณ์ที่เปิดเว็บเท่านั้น
-> ยังไม่ได้เชื่อมต่อเซิร์ฟเวอร์หรือฐานข้อมูลส่วนกลางของเทศบาล
+The Community Waste Management System is a mobile-friendly web prototype
+that helps community members report uncollected waste, track complaint
+progress, and coordinate waste collection activities with staff and
+municipal administrators.
 
-## คุณสมบัติหลัก
+The interface is designed to work on mobile phones, tablets, and desktop
+computers.
 
-### ประชาชน
+> **Prototype notice:** This version stores information in the current
+> browser on the current device. It is a demonstration only and is not
+> connected to a real municipal backend or database.
 
--   แจ้งปัญหาขยะตกค้างโดยกรอกรายละเอียดและตำแหน่ง
--   แนบรูปภาพประกอบจากอุปกรณ์
--   ใช้ GPS เพื่อกรอกพิกัดปัจจุบันได้เมื่อเบราว์เซอร์ได้รับอนุญาต
--   รับเลขติดตาม เช่น `WS-0001`
--   ค้นหาเลขติดตามเพื่อดูรายละเอียดและสถานะเรื่องร้องเรียน
+## 2. User Roles and Features
 
-### เจ้าหน้าที่เก็บขยะ
+### Citizens
 
--   ดูรายการที่รอรับและกำลังดำเนินการ
--   กดรับงานเพื่อเปลี่ยนสถานะเป็น "กำลังดำเนินการ"
--   เปลี่ยนสถานะเป็น "เก็บเรียบร้อย" เมื่อทำงานเสร็จ
+-   Submit a report about uncollected waste.
+-   Enter a description and the affected location.
+-   Use the device's GPS to fill in coordinates, when permission is
+    granted.
+-   Attach an image as supporting evidence.
+-   Receive a tracking number for each report.
+-   Check the status of a submitted report using its tracking number.
 
-### ผู้ดูแลระบบเทศบาล
+### Collection Staff
 
--   ดูจำนวนเรื่องทั้งหมด เรื่องที่รอรับ กำลังดำเนินการ และเสร็จสิ้น
--   ตรวจสอบพื้นที่ที่มีการแจ้งซ้ำ
--   ส่งออกรายงานเป็นไฟล์ CSV
--   ล้างข้อมูลตัวอย่างในเบราว์เซอร์ได้
+-   View reports that are waiting for action or are in progress.
+-   Accept a report and change its status to **In Progress**.
+-   Mark the collection task as completed.
 
-## การออกแบบสำหรับมือถือ
+### Municipal Administrators
 
--   ใช้ Responsive CSS เพื่อปรับเลย์เอาต์ตามความกว้างหน้าจอ
--   ปุ่มและช่องกรอกข้อมูลมีขนาดเหมาะกับการแตะด้วยนิ้ว
--   เมนูหลักแสดงเป็นแท็บ 3 ส่วน: ประชาชน, เจ้าหน้าที่ และเทศบาล
--   รองรับพื้นที่ปลอดภัยของหน้าจอ (safe area) บนอุปกรณ์ที่รองรับ
--   ใช้ขนาดตัวอักษรที่อ่านง่ายและจัดวางการ์ดให้เหมาะกับจอขนาดเล็ก
--   รองรับธีมสว่างและมืดตามการตั้งค่าของอุปกรณ์
+-   View summary counts for all reports, reports awaiting action,
+    reports in progress, and completed reports.
+-   Identify locations where reports have been submitted repeatedly.
+-   Export report data as a CSV file.
+-   Clear the demonstration data stored in the current browser.
 
-## เทคโนโลยี
+## 3. Mobile-Friendly Design
 
--   **HTML5** --- โครงสร้างหน้าเว็บ
--   **CSS3** --- การออกแบบ Responsive และธีม
--   **JavaScript** --- การส่งเรื่อง ติดตามสถานะ และแสดงรายงาน
--   **localStorage** --- บันทึกข้อมูลตัวอย่างไว้ในเบราว์เซอร์
--   **Geolocation API** --- อ่านพิกัดเมื่อผู้ใช้อนุญาต
--   **FileReader API** --- แสดงตัวอย่างรูปภาพที่เลือก
--   **Blob และ URL API** --- สร้างไฟล์รายงาน CSV สำหรับดาวน์โหลด
+The mobile interface includes: - A responsive layout that adapts to
+different screen sizes. - Large buttons and form fields suitable for
+touch input. - Navigation tabs for Citizens, Collection Staff, and
+Municipal Administrators. - A layout that places the main content above
+the workflow summary on smaller screens. - Image previews before a
+report is submitted.
 
-ไม่จำเป็นต้องติดตั้งไลบรารีภายนอกเพื่อทดลองต้นแบบนี้
+## 4. Technologies Used
 
-## วิธีเริ่มใช้งาน
+-   **HTML5** --- page structure and form controls.
+-   **CSS3** --- responsive layout and visual styling.
+-   **JavaScript** --- report submission, tracking, status updates,
+    summaries, and CSV export.
+-   **Local Storage** --- saves demonstration reports in the browser.
+-   **Geolocation API** --- retrieves device coordinates after the user
+    grants permission.
+-   **FileReader API** --- displays selected images in the interface.
+-   **Blob and URL APIs** --- generate the CSV download.
 
-1.  บันทึกไฟล์หน้าเว็บเป็น `index.html`
-2.  เปิดไฟล์ด้วยเว็บเบราว์เซอร์รุ่นใหม่ เช่น Chrome, Edge, Safari หรือ Firefox
-3.  เปิดเมนู **ประชาชน** แล้วกรอกรายละเอียดปัญหาและตำแหน่ง
-4.  กด **ส่งเรื่องร้องเรียน** เพื่อรับเลขติดตาม
-5.  เปิดเมนู **เจ้าหน้าที่** เพื่อรับงานและอัปเดตสถานะ
-6.  เปิดเมนู **เทศบาล** เพื่อตรวจสอบสรุปผลหรือส่งออกรายงาน CSV
+## 5. How to Run
 
-### การใช้งาน GPS
+1.  Save the application source code as `index.html`.
+2.  Open `index.html` in a modern web browser.
+3.  On a mobile device, open the page in the device's browser to test
+    the responsive interface.
 
-การอ่านตำแหน่งต้องได้รับอนุญาตจากผู้ใช้และอาจต้องเปิดเว็บผ่าน HTTPS หรือ `localhost`
-หากเปิดไฟล์โดยตรงแล้ว GPS ใช้งานไม่ได้
-ให้ทดลองผ่านเว็บเซิร์ฟเวอร์ภายในเครื่องหรือสภาพแวดล้อม HTTPS และตรวจสอบสิทธิ์
-Location ของเบราว์เซอร์
+For GPS functionality, the browser may require a secure context (HTTPS
+or localhost) and the user's permission. If GPS is unavailable, enter
+the location manually.
 
-## โครงสร้างไฟล์
+## 6. Data Storage and Limitations
 
-ต้นแบบสามารถอยู่ในไฟล์เดียวได้:
+-   Report data is saved in the browser's Local Storage on the current
+    device.
+-   Data is not automatically shared between different devices or
+    browsers.
+-   Clearing browser data may remove saved reports.
+-   The prototype does not include user authentication, a central
+    database, a live municipal connection, push notifications, or a
+    production deployment.
+-   Image attachments are stored locally as browser data, so large
+    images may use substantial storage space. The application limits
+    each selected image to 5 MB.
 
-``` text
-project/
-└── index.html
-```
+## 7. Suggested Future Improvements
 
-ไฟล์ `index.html` ประกอบด้วย HTML, CSS และ JavaScript ภายในไฟล์เดียว ส่วน
-README นี้ใช้สำหรับอธิบายโปรเจกต์และวิธีใช้งาน
+-   Build a backend API and central database.
+-   Add secure authentication and role-based access control.
+-   Connect reports to a real municipal workflow.
+-   Display submitted locations on an interactive map.
+-   Send notifications when report statuses change.
+-   Add data validation, audit logs, and backup/restore features.
+-   Deploy the application over HTTPS for reliable mobile access.
 
-## ข้อจำกัดที่ควรทราบ
+## 8. Privacy and Responsible Use
 
--   ข้อมูลใน `localStorage` อยู่เฉพาะเบราว์เซอร์และอุปกรณ์นั้น ไม่ซิงก์ไปยังเครื่องอื่น
--   การล้างข้อมูลเว็บไซต์หรือเปลี่ยนเบราว์เซอร์อาจทำให้ข้อมูลหาย
--   ต้นแบบยังไม่มีระบบบัญชีผู้ใช้ การเข้าสู่ระบบ หรือการกำหนดสิทธิ์แยกบทบาท
--   เมนูเจ้าหน้าที่และเทศบาลเป็นเพียงการจำลองหน้าที่ ไม่ได้มีการตรวจสอบสิทธิ์จริง
--   รูปภาพอาจถูกเก็บเป็นข้อมูลในเบราว์เซอร์ ทำให้ใช้พื้นที่จัดเก็บมากขึ้น
--   รายงาน CSV เป็นข้อมูลที่มีอยู่ในอุปกรณ์ขณะนั้นเท่านั้น
--   ยังไม่มีการแจ้งเตือนจริง การเชื่อมต่อ API หรือฐานข้อมูลส่วนกลาง
+Ask users for location and image permissions only when needed. Avoid
+including personal or sensitive information in report descriptions or
+photographs. Before using this prototype with real community data,
+implement appropriate security, privacy, access-control, and
+data-retention measures.
 
-## แนวทางพัฒนาต่อ
+## 9. License
 
-หากต้องการนำไปใช้งานจริง ควรเพิ่ม: 1. Backend API และฐานข้อมูลกลาง เช่น
-PostgreSQL หรือ MySQL 2. ระบบยืนยันตัวตนและสิทธิ์ผู้ใช้สำหรับประชาชน เจ้าหน้าที่
-และผู้ดูแลระบบ 3. ระบบจัดเก็บรูปภาพที่ปลอดภัย 4.
-การซิงก์สถานะงานแบบเรียลไทม์หรือการรีเฟรชข้อมูลจากเซิร์ฟเวอร์ 5. การตรวจสอบข้อมูล
-การป้องกันสแปม และบันทึกประวัติการเปลี่ยนสถานะ 6. การสำรองข้อมูล
-นโยบายความเป็นส่วนตัว และการรักษาความปลอดภัย
-
-## ความเป็นส่วนตัว
-
-ก่อนใช้กับข้อมูลจริง ควรแจ้งผู้ใช้ว่ามีการเก็บข้อมูลใดบ้าง
-และขออนุญาตก่อนเข้าถึงตำแหน่งหรือรูปภาพ
-ต้นแบบนี้ไม่ควรใช้เก็บข้อมูลส่วนบุคคลที่ละเอียดอ่อนหรือเป็นระบบร้องเรียนทางการโดยไม่มีมาตรการรักษาความปลอดภัยเพิ่มเติม
-
-## License
-
-ยังไม่ได้กำหนดสัญญาอนุญาตใช้งาน (License) สำหรับโปรเจกต์นี้
+No license has been specified for this prototype. Add a license file if
+you plan to distribute or reuse the project publicly.
