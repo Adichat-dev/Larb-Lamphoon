@@ -1,0 +1,102 @@
+<!DOCTYPE html="Thai">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ระบบจัดการขยะตกค้างในชุมชน – Prototype</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--card:#fff;--bd:#ddd;--mut:#666;--hd:#500000;--ac:#c8102e;--ok:#1a7f37;--side:#f6f1f1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121212;--fg:#eee;--card:#1e1e1e;--bd:#383838;--mut:#aaa;--side:#1b1616;--ok:#4cc26a}}
+*{box-sizing:border-box}body{margin:0;font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{background:var(--hd);color:#fff;padding:14px 20px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;font-size:13px;opacity:.85}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;max-width:1200px;margin:0 auto;padding:16px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.tabs{display:flex;gap:6px;border-bottom:3px solid var(--bd);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{background:none;border:0;color:var(--fg);padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs button.on{border-color:var(--ac);color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:12px}
+label{display:block;font-weight:600;margin:10px 0 4px;font-size:14px}
+input,textarea,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:6px;font:inherit;background:var(--bg);color:var(--fg)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:20px;padding:9px 18px;font:inherit;font-weight:600;cursor:pointer;margin-top:12px}
+.btn.s{background:none;color:var(--ac);border:1px solid var(--ac);padding:5px 12px;margin:0 4px 0 0;font-size:13px}
+.row{display:flex;gap:8px}.row>*{flex:1}.row .btn{flex:0 0 auto;margin:0}
+#pv{max-width:160px;border-radius:6px;margin-top:8px;display:none}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;color:#fff}
+.st0{background:#b7791f}.st1{background:#2b6cb0}.st2{background:var(--ok)}
+.tk{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}.mut{color:var(--mut);font-size:13px}
+aside{background:var(--side);border:1px solid var(--bd);border-radius:8px;padding:14px;align-self:start;position:sticky;top:8px}
+aside h2{font-size:16px;margin:0 0 8px}aside ul{list-style:none;padding:0;margin:0 0 12px}
+aside li{padding:6px 8px;margin-bottom:4px;border-radius:6px;font-size:13px;border:1px solid var(--bd);background:var(--card)}
+aside li.hit{border-color:var(--ok)}aside li.hit::before{content:"✓ ";color:var(--ok);font-weight:700}
+.perf{font-size:13px}.perf b{font-size:20px}.bar{height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ok);width:0}
+#toasts{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:6px;z-index:9}
+.toast{background:#222;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;max-width:280px}
+.kpi{display:flex;gap:8px;flex-wrap:wrap}.kpi div{flex:1;min-width:90px;text-align:center;padding:10px;border:1px solid var(--bd);border-radius:8px}.kpi b{font-size:22px;display:block}
+</style>
+</head>
+<body>
+<header><h1>ระบบจัดการขยะตกค้างในชุมชน</h1>
+<main>
+<div class="tabs" id="tabs">
+<button class="on" data-t="c">ประชาชน</button><button data-t="o" class="">เจ้าหน้าที่เก็บขยะ</button><button data-t="s" class="">ผู้ดูแลระบบเทศบาล</button></div>
+
+<section id="c">
+<div class="card"><b>แจ้งจุดขยะตกค้าง</b>
+<label>รายละเอียด</label><textarea id="desc" rows="3" placeholder="เช่น ขยะล้นถังหน้าตลาด ไม่ได้เก็บ 3 วัน"></textarea>
+<label>ตำแหน่ง / พื้นที่</label>
+<div class="row"><input id="loc" placeholder="เช่น ซอยสุขใจ 5 ชุมชนท่าสุด"><button class="btn s" id="gps" type="button">📍 ตำแหน่งปัจจุบัน</button></div>
+<label>รูปภาพ</label><input type="file" id="img" accept="image/*"><img id="pv" alt="">
+<button class="btn" id="send">ส่งเรื่องร้องเรียน</button></div>
+<div class="card"><b>ติดตามเรื่อง</b>
+<div class="row" style="margin-top:8px"><input id="q" placeholder="กรอกเลขติดตาม เช่น WS-0001"><button class="btn" id="find">ค้นหา</button></div>
+<div id="qr" class="mut" style="margin-top:8px"></div></div>
+</section>
+
+<section id="o" hidden=""><div class="card"><b>งานที่รอรับ / กำลังดำเนินการ</b><div id="olist"><div class="mut">ยังไม่มีงานค้าง</div></div></div></section>
+
+<section id="s" hidden="">
+<div class="kpi" id="kpi"><div><b>0</b>ทั้งหมด</div><div><b>0</b>รอรับเรื่อง</div><div><b>0</b>กำลังดำเนินการ</div><div><b>0</b>เสร็จสิ้น</div></div>
+<div class="card" style="margin-top:12px"><b>พื้นที่ที่มีปัญหาซ้ำ</b><div id="rep" class="mut" style="margin-top:6px">ยังไม่พบพื้นที่ที่แจ้งซ้ำ (ลองแจ้งตำแหน่งเดิมสองครั้ง)</div>
+<button class="btn" id="exp">ออกรายงาน (CSV)</button></div>
+</section>
+</main>
+</div>
+<div id="toasts"></div>
+<script>
+const $=s=>document.querySelector(s),T=["รอรับเรื่อง","กำลังดำเนินการ","เก็บเรียบร้อย"];
+let tickets=[],n=0,photo="",hist=[];
+function hit(f){const e=$('#fr [data-f="'+f+'"]');e&&e.classList.add('hit')}
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;$('#toasts').append(d);setTimeout(()=>d.remove(),4000)}
+function timed(fn){const t0=performance.now();fn();const ms=performance.now()-t0;hist.push(ms);
+ $('#pt').textContent=(ms/1000).toFixed(3)+' วินาที';const ok=ms<=10000;
+ $('#pr').textContent=ok?'✓ ผ่าน (≤ 10 วิ)':'✗ ไม่ผ่าน';$('#pb').style.width=Math.min(100,ms/100)+'%';$('#pb').style.background=ok?'var(--ok)':'var(--ac)';
+ $('#ph').textContent='ทดสอบแล้ว '+hist.length+' ครั้ง · ช้าสุด '+(Math.max(...hist)/1000).toFixed(3)+' วิ'}
+$('#tabs').onclick=e=>{const t=e.target.dataset.t;if(!t)return;
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b===e.target));
+ ['c','o','s'].forEach(x=>$('#'+x).hidden=x!==t);timed(()=>{render()})};
+$('#img').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{photo=r.result;$('#pv').src=photo;$('#pv').style.display='block'};r.readAsDataURL(f)};
+$('#gps').onclick=()=>{if(!navigator.geolocation){toast('อุปกรณ์ไม่รองรับตำแหน่ง');return}
+ navigator.geolocation.getCurrentPosition(p=>{$('#loc').value=p.coords.latitude.toFixed(5)+', '+p.coords.longitude.toFixed(5)},()=>toast('ไม่สามารถอ่านตำแหน่งได้ กรุณาพิมพ์เอง'),{timeout:8000})};
+$('#send').onclick=()=>{const d=$('#desc').value.trim(),l=$('#loc').value.trim();
+ if(!d||!l){toast('กรุณากรอกรายละเอียดและตำแหน่ง');return}
+ timed(()=>{const id='WS-'+String(++n).padStart(4,'0');tickets.push({id,d,l,photo,s:0,t:new Date().toLocaleString('th-TH')});
+  hit(1);hit(2);toast('รับเรื่องแล้ว เลขติดตาม '+id);$('#qr').textContent='เลขติดตามล่าสุดของคุณ: '+id;$('#q').value=id;
+  $('#desc').value='';$('#loc').value='';$('#img').value='';photo='';$('#pv').style.display='none';render()})};
+$('#find').onclick=()=>timed(()=>{const t=tickets.find(x=>x.id===$('#q').value.trim().toUpperCase());
+ $('#qr').innerHTML=t?`<span class="tag st${t.s}">${T[t.s]}</span> ${t.id} · ${esc(t.l)}<br>${esc(t.d)}`:'ไม่พบเลขติดตามนี้'});
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function setS(id,s){timed(()=>{const t=tickets.find(x=>x.id===id);t.s=s;hit(3);hit(4);toast('🔔 '+id+' เปลี่ยนสถานะเป็น "'+T[s]+'"');render()})}
+window.setS=setS;
+function render(){
+ const act=tickets.filter(t=>t.s<2);
+ $('#olist').innerHTML=act.length?act.map(t=>`<div class="card tk"><div>${t.photo?`<img src="${t.photo}" style="width:64px;border-radius:6px;float:left;margin-right:10px">`:''}<b>${t.id}</b> <span class="tag st${t.s}">${T[t.s]}</span><br>${esc(t.l)}<div class="mut">${esc(t.d)} · ${t.t}</div></div><div>${t.s==0?`<button class="btn s" onclick="setS('${t.id}',1)">รับงาน</button>`:`<button class="btn s" onclick="setS('${t.id}',2)">เก็บเสร็จ</button>`}</div></div>`).join(''):'<div class="mut">ยังไม่มีงานค้าง</div>';
+ const c=[0,1,2].map(i=>tickets.filter(t=>t.s==i).length);
+ $('#kpi').innerHTML=[`ทั้งหมด|${tickets.length}`,`รอรับเรื่อง|${c[0]}`,`กำลังดำเนินการ|${c[1]}`,`เสร็จสิ้น|${c[2]}`].map(x=>{const[a,b]=x.split('|');return`<div><b>${b}</b>${a}</div>`}).join('');
+ const m={};tickets.forEach(t=>m[t.l]=(m[t.l]||0)+1);
+ const r=Object.entries(m).filter(([,v])=>v>1);
+ $('#rep').innerHTML=r.length?r.map(([k,v])=>`⚠️ ${esc(k)} — แจ้งซ้ำ ${v} ครั้ง`).join('<br>'):'ยังไม่พบพื้นที่ที่แจ้งซ้ำ (ลองแจ้งตำแหน่งเดิมสองครั้ง)'}
+$('#exp').onclick=()=>timed(()=>{hit(5);let csv='\ufeffเลขติดตาม,พื้นที่,รายละเอียด,สถานะ\n'+tickets.map(t=>[t.id,t.l,t.d,T[t.s]].map(v=>'"'+v.replace(/"/g,'""')+'"').join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='report.csv';a.click();toast('สร้างรายงานแล้ว')});
+render();
+</script>
+</body>
+<html>
