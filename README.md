@@ -60,8 +60,9 @@ $env:SESSION_SECRET="<value>"
 
 node server.js
 ```
+add cloudflared
 
-Open http://localhost:3000
+Open [http://localhost:3000](https://expected-craft-trial-varieties.trycloudflare.com)
 
 > In development, if `SESSION_SECRET` is not set, a temporary random one is used, so everyone is logged out whenever the server restarts.
 
