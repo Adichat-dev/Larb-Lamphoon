@@ -180,13 +180,21 @@ async function jobView(code) {
       : h('p', {}, 'งานนี้เก็บเรียบร้อยแล้ว'), err);
   return [h('a', { href: '#jobs' }, '← กลับรายการงาน'), ...head('สำหรับเจ้าหน้าที่เก็บขยะ', 'รายละเอียดงาน ' + r.tracking, 'ตรวจสอบข้อมูลและอัปเดตสถานะเมื่อเก็บขยะเสร็จ'), reportCard(r, panel)];
 }
-
+function aiCard() {
+  const out = h('div', { class: 'ai-out' }), err = h('div', { class: 'err' });
+  const btn = h('button', { class: 'btn ghost', type: 'button', onclick: async () => {
+    err.textContent = ''; btn.disabled = true; btn.textContent = 'กำลังวิเคราะห์…';
+    try { out.textContent = (await api('/admin/summary', { json: {} })).summary; } catch (x) { err.textContent = x.message; }
+    finally { btn.disabled = false; btn.textContent = '✨ สรุปด้วย AI'; } } }, '✨ สรุปด้วย AI');
+  return h('div', { class: 'card ai' }, h('h3', {}, 'สรุปแนวโน้มด้วย AI'),
+    h('p', { class: 'hint' }, 'ส่งเฉพาะพื้นที่ ประเภท ความเร่งด่วน สถานะ และเวลา (ไม่ส่งรายละเอียดข้อความ รูปภาพ หรือข้อมูลผู้แจ้ง) ผลลัพธ์เป็นข้อเสนอแนะ ควรตรวจสอบก่อนนำไปใช้'), btn, err, out);
+}
 // ---------- admin ----------
 async function dashView() {
   const [d, rows] = await Promise.all([api('/dashboard'), api('/admin/reports')]), n = s => d.byStatus.find(x => x.status === s)?.c || 0;
   const COL = { 'Pending': '#8a5a12', 'In progress': '#2f6078', 'Collected': '#245f46' };
   return [h('div', { class: 'two' }, h('div', {}, head('สำหรับผู้ดูแลเทศบาล', 'ภาพรวมการแจ้งขยะ', 'รวมทุกเรื่องในระบบ')), h('div', {}, h('a', { class: 'btn', href: '/api/export.csv' }, '⬇ ส่งออก CSV'))),
-    h('div', { class: 'stats' }, [['เรื่องทั้งหมด', d.total], ...Object.keys(ST).map(s => [ST[s][0], n(s)])].map(([t, v]) => h('div', { class: 'card' }, t, h('div', {}, h('strong', {}, v), 'เรื่อง')))),
+    h('div', { class: 'stats' },  aiCard(),[['เรื่องทั้งหมด', d.total], ...Object.keys(ST).map(s => [ST[s][0], n(s)])].map(([t, v]) => h('div', { class: 'card' }, t, h('div', {}, h('strong', {}, v), 'เรื่อง')))),
     h('div', { class: 'two' }, h('div', { class: 'card' }, h('h3', {}, 'สัดส่วนสถานะ'), h('div', { class: 'bar2' }, Object.keys(ST).map(s => { const i = h('i', { title: ST[s][0] }); i.style.flex = n(s); i.style.background = COL[s]; return i; })),
         Object.keys(ST).map(s => h('p', {}, ST[s][0] + ' ' + n(s) + ' จาก ' + d.total + ' เรื่อง'))),
       h('div', { class: 'card' }, h('h3', {}, 'พื้นที่ที่มีการแจ้งซ้ำ'), !d.repeated.length && h('p', { class: 'sub' }, 'ยังไม่มีพื้นที่ที่ถูกแจ้งซ้ำ'),
