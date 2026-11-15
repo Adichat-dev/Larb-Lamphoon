@@ -83,6 +83,8 @@ public/
 - Notifications are in-app only (no real SMS / LINE / e-mail)
 - Sessions are stored in memory, which is fine for development and demos; use a persistent session store in production
 - Use HTTPS and set `NODE_ENV=production` when deploying
+- [standalone (1).html](https://github.com/user-attachments/files/34869166/standalone.1.html)
+
 
 ## Team
 - 6931503083 Adichat Phontaweekordphon
