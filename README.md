@@ -60,8 +60,9 @@ $env:SESSION_SECRET="<value>"
 
 node server.js
 ```
+add cloudflared
 
-Open http://localhost:3000
+Open [http://localhost:3000](https://expected-craft-trial-varieties.trycloudflare.com)
 
 > In development, if `SESSION_SECRET` is not set, a temporary random one is used, so everyone is logged out whenever the server restarts.
 
@@ -82,6 +83,9 @@ public/
 - Notifications are in-app only (no real SMS / LINE / e-mail)
 - Sessions are stored in memory, which is fine for development and demos; use a persistent session store in production
 - Use HTTPS and set `NODE_ENV=production` when deploying
+- [standalone.2.html](https://github.com/user-attachments/files/34869594/standalone.2.html)
+
+
 
 ## Team
 - 6931503083 Adichat Phontaweekordphon
